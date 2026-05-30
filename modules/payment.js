@@ -11,11 +11,16 @@ const paymentTransactions = new Schema({
   },
   status: {
     type: String,
-    require: true,
+    enum: ["pending", "succesful", "rejected", "inreview"],
+    default: "pending",
   },
-  data: {
+  date: {
     type: String,
     require: true,
+  },
+  expiresAt: {
+    type: Date,
+    index: true,
   },
 });
 const paymentData = mongoose.model("paymentTransactions", paymentTransactions);

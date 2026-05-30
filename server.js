@@ -13,9 +13,8 @@ const mongoose = require("mongoose");
 
 //
 //
-const emailData = require("./modules/email");
 const paymentTransactionsData = require("./modules/payment");
-const cronJobPaymentTransaction = require("./modules/pendingPayment");
+
 //
 mongoose.connect("mongodb://localhost:27017/").then(() => {
   console.log("connected to database");
@@ -26,19 +25,26 @@ mongoose.connect("mongodb://localhost:27017/").then(() => {
 //
 cronJob.schedule("* * * * *", async () => {
   // fires every 1min
-  // would creat paymentTransaction = pending & cronJobPaymentTransaction = pending on email upload
-  // and check list every 1 min to see which is still pending if times up i would update paymentTransaction to rejected and delete cronJobPaymentTransaction  of its list
-  // so it dosent add up large fiels and it dosent scan all docs
-  // if user confirms payment i would update paymentTransaction to pending and delete data from cronJobPaymentTransaction from rejection on timeout
   try {
-    console.log("1min");
+    const result = await paymentTransactionsData.updateMany(
+      {
+        status: "pending",
+        expiresAt: { $lte: new Date() },
+      },
+      {
+        status: "rejected",
+      },
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`cancelled ${result.modifiedCount} expired payments`);
+    }
   } catch (error) {
     console.log(error);
   }
 });
+
 const emailValidation = async (req, res, next) => {
   const body = req.body;
-  console.log(body);
   if (body === undefined)
     return res
       .status(301)
@@ -52,28 +58,62 @@ const emailValidation = async (req, res, next) => {
   res.email = email;
   next();
 };
+
 server.post("/email", emailValidation, async (req, res) => {
   const email = {
     email: res.email,
   };
   try {
-    const saveEmail = new emailData(email);
-    await saveEmail
-      .save()
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+    const paymentInfo = {
+      email: res.email,
+      amount: 3500,
+      status: "pending",
+      date: `${expiresAt.toLocaleDateString()} ${expiresAt.getHours() >= 10 ? expiresAt.getHours() : "0" + expiresAt.getHours()}:${expiresAt.getMinutes() >= 10 ? expiresAt.getMinutes() : "0" + expiresAt.getMinutes()}`,
+      expiresAt,
+    };
+    const creatPayment = await paymentTransactionsData
+      .create(paymentInfo)
       .then((e) => {
         if (e._id)
           return res.status(201).json({
             ok: true,
             massage: "Email uploaded succesfull",
-            redirectUrl: "/dig/payment",
+            redirectUrl: `/dmg/payment/${e.email}`,
           });
-      })
-      .catch((error) => {
-        res
-          .status(500)
-          .json({ ok: false, massage: `save email error: ${error}` });
       });
   } catch (error) {
     res.status(500).json({ ok: false, massage: `server error: ${error}` });
   }
 });
+server.post("/validate/payment", emailValidation, async (req, res) => {
+  try {
+    const payment = await paymentTransactionsData.findOneAndUpdate(
+      {
+        email: res.email,
+        status: "pending",
+        expiresAt: { $gt: new Date() },
+      },
+      {
+        status: "inreview",
+      },
+      {
+        new: true,
+      },
+    );
+    if (!payment) {
+      return res
+        .status(400)
+        .json({ ok: false, massage: "paymnet expired or already processed" });
+    }
+    res.status(200).json({
+      ok: true,
+      massage: "payment inreview we would notify you as soon as its succesfull",
+      redirectUrl: `/payment/pending/dmg/${res.email}`,
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, massage: `server error: ${error}` });
+  }
+});
+console.log(new Date().toLocaleDateString());
