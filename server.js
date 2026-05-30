@@ -116,4 +116,12 @@ server.post("/validate/payment", emailValidation, async (req, res) => {
     res.status(500).json({ ok: false, massage: `server error: ${error}` });
   }
 });
-console.log(new Date().toLocaleDateString());
+//
+server.get("/all/payment/transactions", async (req, res) => {
+  try {
+    const getData = await paymentTransactionsData.find();
+    res.status(200).json({ ok: true, massage: "get succesful", data: getData });
+  } catch (error) {
+    res.status(500).json({ ok: false, massage: `server error : ${error}` });
+  }
+});
