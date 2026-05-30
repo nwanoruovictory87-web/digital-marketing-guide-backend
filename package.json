@@ -7,11 +7,14 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devStart": "nodemon server.js"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "mongoose": "^9.6.2",
+    "node-cron": "^4.2.1",
     "nodemailer": "^8.0.8",
     "nodemon": "^3.1.14"
   }
