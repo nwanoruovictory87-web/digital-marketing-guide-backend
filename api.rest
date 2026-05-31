@@ -8,10 +8,13 @@ Content-Type : application/json
  {
     "email" : "nwanoruovictory@gmail.com" 
  } 
- ###
+
+###
+
 POST http://localhost:3000/validate/payment/paid/admin HTTP/1.1
 Content-Type : application/json
  
  {
-    "paymentId" : "6a1b3022b9437979b97d6d4c" 
+    "paymentId" : "6a1b3307b9437979b97d6d4d" ,
+    "email" : "john@gmail.com" 
  } 

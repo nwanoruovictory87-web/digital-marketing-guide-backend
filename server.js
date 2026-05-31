@@ -20,7 +20,7 @@ const mongoose = require("mongoose");
 const paymentTransactionsData = require("./modules/payment");
 const validatedEmail = require("./modules/email");
 //
-console.log(process.env.DataBaseUrl);
+
 mongoose
   .connect(process.env.DataBaseUrl)
   .then(() => {
