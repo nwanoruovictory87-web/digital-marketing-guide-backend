@@ -3,9 +3,13 @@ const server = express();
 const cors = require("cors");
 server.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      "https://nwanoruovictory87-web.github.io",
+    ],
   }),
 );
+require("dotenv").config();
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 const cronJob = require("node-cron");
@@ -16,12 +20,18 @@ const mongoose = require("mongoose");
 const paymentTransactionsData = require("./modules/payment");
 const validatedEmail = require("./modules/email");
 //
-mongoose.connect("mongodb://localhost:27017/").then(() => {
-  console.log("connected to database");
-  server.listen(3000, () => {
-    console.log("server up and runing");
+console.log(process.env.DataBaseUrl);
+mongoose
+  .connect(process.env.DataBaseUrl)
+  .then(() => {
+    console.log("connected to database");
+    server.listen(3000, () => {
+      console.log("server up and runing");
+    });
+  })
+  .catch((error) => {
+    console.log(`database connection error : ${error}`);
   });
-});
 //
 cronJob.schedule("* * * * *", async () => {
   // fires every 1min
@@ -139,7 +149,6 @@ server.post("/validate/payment/paid/admin", async (req, res) => {
     });
   try {
     const requst = await paymentTransactionsData.findById(paymentId);
-    s;
     if (requst.validated)
       return res
         .status(303)
