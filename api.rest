@@ -1,10 +1,17 @@
 
 ###
-GET http://localhost:3000/
+GET http://localhost:3000/all/payment/transactions
 ###
 POST http://localhost:3000/validate/payment HTTP/1.1
 Content-Type : application/json
  
  {
     "email" : "nwanoruovictory@gmail.com" 
+ } 
+ ###
+POST http://localhost:3000/validate/payment/paid/admin HTTP/1.1
+Content-Type : application/json
+ 
+ {
+    "paymentId" : "6a1b3022b9437979b97d6d4c" 
  } 

@@ -14,7 +14,7 @@ const mongoose = require("mongoose");
 //
 //
 const paymentTransactionsData = require("./modules/payment");
-
+const validatedEmail = require("./modules/email");
 //
 mongoose.connect("mongodb://localhost:27017/").then(() => {
   console.log("connected to database");
@@ -70,7 +70,8 @@ server.post("/email", emailValidation, async (req, res) => {
       email: res.email,
       amount: 3500,
       status: "pending",
-      date: `${expiresAt.toLocaleDateString()} ${expiresAt.getHours() >= 10 ? expiresAt.getHours() : "0" + expiresAt.getHours()}:${expiresAt.getMinutes() >= 10 ? expiresAt.getMinutes() : "0" + expiresAt.getMinutes()}`,
+      date: `${expiresAt.toLocaleDateString()} ${expiresAt.toLocaleTimeString()}`,
+      validated: false,
       expiresAt,
     };
     const creatPayment = await paymentTransactionsData
@@ -87,7 +88,8 @@ server.post("/email", emailValidation, async (req, res) => {
     res.status(500).json({ ok: false, massage: `server error: ${error}` });
   }
 });
-server.post("/validate/payment", emailValidation, async (req, res) => {
+//
+server.post("/validate/payment/user", emailValidation, async (req, res) => {
   try {
     const payment = await paymentTransactionsData.findOneAndUpdate(
       {
@@ -116,11 +118,73 @@ server.post("/validate/payment", emailValidation, async (req, res) => {
     res.status(500).json({ ok: false, massage: `server error: ${error}` });
   }
 });
-//
+// admin api endpoints
 server.get("/all/payment/transactions", async (req, res) => {
   try {
     const getData = await paymentTransactionsData.find();
-    res.status(200).json({ ok: true, massage: "get succesful", data: getData });
+    res
+      .status(200)
+      .json({ ok: true, massage: "Fecth succesful", data: getData });
+  } catch (error) {
+    res.status(500).json({ ok: false, massage: `server error : ${error}` });
+  }
+});
+//
+server.post("/validate/payment/paid/admin", async (req, res) => {
+  const paymentId = req.body.paymentId;
+  if (!paymentId)
+    return res.status(301).json({
+      ok: false,
+      massage: "invalid requst body paymentid is requied ",
+    });
+  try {
+    const requst = await paymentTransactionsData.findById(paymentId);
+    s;
+    if (requst.validated)
+      return res
+        .status(303)
+        .json({ ok: true, massage: "Email already validated" });
+    const validatePayment = await paymentTransactionsData.updateOne(
+      { _id: paymentId },
+      { status: "succesful", validated: true },
+    );
+    if (!validatePayment.acknowledged)
+      res
+        .status(500)
+        .json({ ok: false, massage: `server error : something went wrong ` });
+    const validateUserEmail = await validatedEmail.create({
+      email: requst.email,
+      emailSent: false,
+    });
+    if (validateUserEmail._id) {
+      res.status(201).json({ ok: true, massage: "Succesful validate email" });
+    }
+  } catch (error) {
+    res.status(500).json({ ok: false, massage: `server error : ${error}` });
+  }
+});
+server.post("/validate/payment/reject/admin", async (req, res) => {
+  const paymentId = req.body.paymentId;
+  if (!paymentId)
+    return res.status(301).json({
+      ok: false,
+      massage: "invalid requst body paymentid is requied ",
+    });
+  try {
+    const requst = await paymentTransactionsData.findById(paymentId);
+    if (requst.status === "rejected")
+      return res
+        .status(303)
+        .json({ ok: true, massage: "Email already rejected" });
+    const validatePayment = await paymentTransactionsData.updateOne(
+      { _id: paymentId },
+      { status: "rejected", validated: false },
+    );
+    if (!validatePayment.acknowledged)
+      res
+        .status(500)
+        .json({ ok: false, massage: `server error : something went wrong ` });
+    res.status(201).json({ ok: true, massage: "Succesful rejected payment" });
   } catch (error) {
     res.status(500).json({ ok: false, massage: `server error : ${error}` });
   }

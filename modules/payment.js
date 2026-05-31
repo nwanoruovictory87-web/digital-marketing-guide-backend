@@ -18,6 +18,10 @@ const paymentTransactions = new Schema({
     type: String,
     require: true,
   },
+  validated: {
+    type: Boolean,
+    require: true,
+  },
   expiresAt: {
     type: Date,
     index: true,
