@@ -163,7 +163,7 @@ Open Affiliate Platform
 
 <div style="margin-top:15px;">
 
-<a href="https://chat.whatsapp.com/JTegTqLuPpKIpPzaaXCY47"
+<a href="https://chat.whatsapp.com/FofWthlclOBrKg9AUNIYf"
 style="background-color:#25D366;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:8px;display:inline-block;font-weight:bold;">
 Join WhatsApp Community
 </a>
