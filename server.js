@@ -1,7 +1,12 @@
 const express = require("express");
 const server = express();
-const nodemailer = require("nodemailer");
 const cors = require("cors");
+require("dotenv").config();
+const { BrevoClient } = require("@getbrevo/brevo");
+const brevoClient = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY,
+});
+
 server.use(
   cors({
     origin: [
@@ -10,7 +15,7 @@ server.use(
     ],
   }),
 );
-require("dotenv").config();
+
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 const cronJob = require("node-cron");
@@ -34,20 +39,10 @@ mongoose
     console.log(`database connection error : ${error}`);
   });
 //email
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
 
 async function verifyEmailConnectionAndSendEmail(email) {
   try {
-    const emailTemeplate = `
+    const emailTemplate = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -254,12 +249,11 @@ Learn • Apply • Earn
 </body>
 </html>
 `;
-    await transporter.verify();
-    const info = await transporter.sendMail({
-      from: `DMG Team <${process.env.SMTP_USER}>`,
-      to: `${email}`,
-      subject: "Course Access",
-      html: emailTemeplate,
+    const result = await brevoClient.transactionalEmails.sendTransacEmail({
+      subject: "Course Access - Your Digital Marketing Course is Ready",
+      htmlContent: emailTemplate,
+      sender: { name: "DMG Team", email: process.env.Email_USER },
+      to: [{ email: email }],
     });
     return true;
   } catch (err) {
