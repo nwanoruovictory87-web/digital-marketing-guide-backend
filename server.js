@@ -136,7 +136,7 @@ Your payment has been successfully confirmed and all your learning resources are
 
 <div style="margin-top:25px;">
 
-<a href="{{pdfLink}}"
+<a href="https://drive.google.com/file/d/1tbr2XZwcqZe8SGFxAcDLEjc704_iejf9/view?usp=sharing"
 style="background-color:#111827;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:8px;display:inline-block;font-weight:bold;margin-bottom:15px;">
 Download Course PDF
 </a>
