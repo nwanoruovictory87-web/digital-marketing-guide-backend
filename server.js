@@ -163,7 +163,7 @@ Open Affiliate Platform
 
 <div style="margin-top:15px;">
 
-<a href="https://chat.whatsapp.com/FofWthlclOBrKg9AUNIYf"
+<a href="https://chat.whatsapp.com/DtaClsk8A7WCgHszKmyMfV"
 style="background-color:#25D366;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:8px;display:inline-block;font-weight:bold;">
 Join WhatsApp Community
 </a>
@@ -176,7 +176,7 @@ Join WhatsApp Community
 <!-- Learning Outcomes -->
 <tr>
 <td style="padding:0 30px 30px 30px;">
-
+ 
 <div style="background-color:#F3F4F6;border-radius:10px;padding:25px;">
 
 <h2 style="margin-top:0;color:#111827;">
